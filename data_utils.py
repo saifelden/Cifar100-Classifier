@@ -86,7 +86,46 @@ class Data_utils:
 
 		return training_input,training_output,validation_input,validation_output,testing_input,testing_output
 
-		
+
+
+	def apply_grey_scale(self,images):
+
+		grayed_tf = tf.image.rgb_to_grayscale(images)
+		sess = tf.Session()
+		gray_images = sess.run(grayed_tf)
+
+		gray_images.reshape(-1,images.shape[1],images.shape[2],1)
+		reshaped = np.concatenate((gray_images,gray_images,gray_images),3)
+		sess.close()
+		return reshaped
+
+
+	def apply_preprocessing(self,images,output,operations = ['gray','flip_vertical','flip_horizontal','transpose']):
+
+		flipped_virtical_images = None
+		all_images = images
+		all_output = output
+		if 'flip_vertical' in operations:
+			flipped_virtical_images = np.flip(images,1)
+			all_images = np.concatenate((all_images,flipped_virtical_images),0)
+			all_output = np.concatenate((all_output,output),0)
+		if 'flip_horizontal' in operations:
+			flipped_horizontal_images = np.flip(images,2)
+			all_images = np.concatenate((all_images,flipped_horizontal_images),0)
+			all_output =  np.concatenate((all_output,output),0)
+		if 'transpose' in operations:
+			transposed_images = images.transpose(0,2,1,3)
+			all_images = np.concatenate((all_images,transposed_images),0)
+			all_output = np.concatenate((all_output,output),0)
+		if 'gray' in operations:
+			gray_images = self.apply_grey_scale(images)
+			all_images = np.concatenate((all_images,gray_images),0)
+			all_output = np.concatenate((all_output,output),0)
+
+		return all_images,all_output
+
+
+
 
 
 
